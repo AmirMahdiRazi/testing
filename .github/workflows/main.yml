@@ -1,32 +1,35 @@
-name: "Build & Release"   # You can name it as you want
+name: Flutter Android Build
+
 on:
-  pull_request:
-    branches:
-      -main
-  push:
-    branches:
-      - main
-jobs:  # Telling what jobs we need to happen
-  build:      # Specify the building name and machine
-    runs-on: macos-latest # here we selected macos-latest to be able to get ios build
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-	- name : Checkout
-	  uses : actions/checkout@v4
-	
-	- name: Setup JDK
-	  uses: actions/setup-java@v4
-	  with:
-		java-version: '17'
-		distribution: 'zulu'
+      - name: Checkout source
+        uses: actions/checkout@v4
 
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
-	- name: Setup Flutter
-	  uses: subosito/flutter-action@v2
-	  with:
-		channel: 'stable'
-		flutter-version: 3.44.0
-	- name: Install dependencies
-	  run : flutter pub get
-	- name: Build APK
-	  run: flutter build apk --debug --build-name=1.0.0 --build-number=1
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.24.0
 
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
